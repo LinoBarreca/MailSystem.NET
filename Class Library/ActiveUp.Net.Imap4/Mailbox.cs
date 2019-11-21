@@ -338,6 +338,20 @@ namespace ActiveUp.Net.Mail
             return messageOrdinals;
         }
 
+        public int[] UIDSearch(string query)
+        {
+            string response = SourceClient.Command("uid search " + query);
+
+            int resultsPosition = response.IndexOf("* SEARCH");
+            if (resultsPosition > -1)
+                response = response.Substring(resultsPosition); //ignore other messages from server before results
+
+            string[] parts = response.Substring(0, response.IndexOf("\r\n")).Split(' ');
+            int[] messageOrdinals = new int[parts.Length - 2];
+            for (int i = 2; i < parts.Length; i++) messageOrdinals[i - 2] = System.Convert.ToInt32(parts[i]);
+            return messageOrdinals;
+        }
+
         private delegate int[] DelegateSearch(string query);
         private DelegateSearch _delegateSearch;
 
